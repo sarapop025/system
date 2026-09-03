@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Aug 31, 2026 at 06:03 PM
+-- Generation Time: Sep 03, 2026 at 06:24 PM
 -- Server version: 10.4.27-MariaDB
 -- PHP Version: 7.4.33
 
@@ -42,7 +42,31 @@ CREATE TABLE `students` (
 --
 
 INSERT INTO `students` (`student_id`, `student_code`, `firstname`, `lastname`, `class_level`, `classroom`, `phone`) VALUES
-(1, 't01', 'ทดสอบ', 'ทดสอบ', 'ม4', '3', '01111111111');
+(1, 't01', 'ทดสอบ', 'ทดสอบ', 'ม4', '3', '01111111111'),
+(3, 't02', 'แวอามีน', 'รักอำนวยศิลป์', 'ม4', '3', '0898786781');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `users`
+--
+
+CREATE TABLE `users` (
+  `user_id` int(11) NOT NULL,
+  `username` varchar(50) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `fullname` varchar(100) NOT NULL,
+  `role` varchar(20) NOT NULL DEFAULT 'viewer'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `users`
+--
+
+INSERT INTO `users` (`user_id`, `username`, `password`, `fullname`, `role`) VALUES
+(1, 'admin', '1234', 'ผู้ดูแลระบบ', 'admin'),
+(2, 'teacher', '1234', 'คุณครูสมชาย', 'teacher'),
+(3, 'viewer', '1234', 'ผู้ดูข้อมูล', 'viewer');
 
 --
 -- Indexes for dumped tables
@@ -55,6 +79,13 @@ ALTER TABLE `students`
   ADD PRIMARY KEY (`student_id`);
 
 --
+-- Indexes for table `users`
+--
+ALTER TABLE `users`
+  ADD PRIMARY KEY (`user_id`),
+  ADD UNIQUE KEY `username` (`username`);
+
+--
 -- AUTO_INCREMENT for dumped tables
 --
 
@@ -62,7 +93,13 @@ ALTER TABLE `students`
 -- AUTO_INCREMENT for table `students`
 --
 ALTER TABLE `students`
-  MODIFY `student_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `student_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `users`
+--
+ALTER TABLE `users`
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
