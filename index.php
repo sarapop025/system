@@ -5,14 +5,26 @@ session_start();
 
 require_once "condb.php";
 
-// ตรวจสอบว่าล็อกอินหรือยัง
+// ========================================
+// ตรวจสอบว่าล็อกอินแล้วหรือยัง
+// ========================================
+
 if (!isset($_SESSION["user_id"])) {
+
     header("Location: login.php");
     exit;
+
 }
 
+// เก็บ Role ของผู้ใช้งาน
+$role = $_SESSION["role"];
+
+// ========================================
 // ดึงข้อมูลนักเรียน
+// ========================================
+
 $sql = "SELECT * FROM students ORDER BY student_id DESC";
+
 $result = $conn->query($sql);
 
 ?>
@@ -29,6 +41,7 @@ $result = $conn->query($sql);
 
     <title>ระบบจัดการข้อมูลนักเรียน</title>
 
+    <!-- Bootstrap -->
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
         rel="stylesheet"
@@ -37,86 +50,24 @@ $result = $conn->query($sql);
     <style>
 
         body {
-            font-family: Arial, sans-serif;
-            margin: 30px;
+            background: #f5f5f5;
         }
 
-        h1 {
+        .container {
+            margin-top: 40px;
+        }
+
+        .header-box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
             margin-bottom: 20px;
         }
 
-        .top-menu {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .btn {
-            text-decoration: none;
-            border-radius: 5px;
-            padding: 8px 12px;
-            margin-right: 5px;
-        }
-
-        .btn-add {
-            background: #198754;
-            color: white;
-        }
-
-        .btn-add:hover {
-            background: #157347;
-            color: white;
-        }
-
-        .btn-edit {
-            background: #ffc107;
-            color: black;
-        }
-
-        .btn-edit:hover {
-            background: #ffca2c;
-            color: black;
-        }
-
-        .btn-delete {
-            background: #dc3545;
-            color: white;
-        }
-
-        .btn-delete:hover {
-            background: #bb2d3b;
-            color: white;
-        }
-
-        .btn-logout {
-            background: #6c757d;
-            color: white;
-        }
-
-        .btn-logout:hover {
-            background: #5c636a;
-            color: white;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th,
-        td {
-            border: 1px solid #ddd;
-            padding: 10px;
-            text-align: left;
-        }
-
-        th {
-            background: #f2f2f2;
-        }
-
-        .user-info {
-            margin-bottom: 15px;
+        .table-box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
         }
 
     </style>
@@ -125,125 +76,248 @@ $result = $conn->query($sql);
 
 <body>
 
-<div class="top-menu">
+<div class="container">
 
-    <h1>ระบบจัดการข้อมูลนักเรียน</h1>
+    <!-- ========================================
+         Header
+    ========================================= -->
 
-    <a href="logout.php" class="btn btn-logout">
-        ออกจากระบบ
-    </a>
+    <div class="header-box">
+
+        <div class="d-flex justify-content-between align-items-center">
+
+            <div>
+
+                <h2>
+                    ระบบจัดการข้อมูลนักเรียน
+                </h2>
+
+                <p class="mb-0">
+
+                    ยินดีต้อนรับ
+                    <strong>
+                        <?= htmlspecialchars($_SESSION["fullname"]) ?>
+                    </strong>
+
+                    |
+
+                    สิทธิ์:
+
+                    <strong>
+                        <?= htmlspecialchars($role) ?>
+                    </strong>
+
+                </p>
+
+            </div>
+
+            <div>
+
+                <a href="logout.php"
+                   class="btn btn-danger">
+
+                    ออกจากระบบ
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================================
+         ตารางข้อมูล
+    ========================================= -->
+
+    <div class="table-box">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+
+            <h4>
+                รายชื่อนักเรียน
+            </h4>
+
+
+            <!-- Admin และ Teacher เพิ่มข้อมูลได้ -->
+
+            <?php if ($role == "admin" || $role == "teacher"): ?>
+
+                <a href="create.php"
+                   class="btn btn-success">
+
+                    + เพิ่มนักเรียน
+
+                </a>
+
+            <?php endif; ?>
+
+        </div>
+
+
+        <div class="table-responsive">
+
+            <table class="table table-bordered table-hover">
+
+                <thead class="table-dark">
+
+                    <tr>
+
+                        <th width="50">
+                            #
+                        </th>
+
+                        <th>
+                            รหัสนักเรียน
+                        </th>
+
+                        <th>
+                            ชื่อ
+                        </th>
+
+                        <th>
+                            นามสกุล
+                        </th>
+
+                        <th>
+                            ชั้น
+                        </th>
+
+                        <th>
+                            ห้อง
+                        </th>
+
+                        <th>
+                            เบอร์โทร
+                        </th>
+
+                        <th width="180">
+                            จัดการ
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                <?php if ($result && $result->num_rows > 0): ?>
+
+                    <?php $i = 1; ?>
+
+                    <?php while ($row = $result->fetch_assoc()): ?>
+
+                        <tr>
+
+                            <td>
+                                <?= $i++ ?>
+                            </td>
+
+                            <td>
+                                <?= htmlspecialchars($row["student_code"]) ?>
+                            </td>
+
+                            <td>
+                                <?= htmlspecialchars($row["firstname"]) ?>
+                            </td>
+
+                            <td>
+                                <?= htmlspecialchars($row["lastname"]) ?>
+                            </td>
+
+                            <td>
+                                <?= htmlspecialchars($row["class_level"]) ?>
+                            </td>
+
+                            <td>
+                                <?= htmlspecialchars($row["classroom"]) ?>
+                            </td>
+
+                            <td>
+                                <?= htmlspecialchars($row["phone"]) ?>
+                            </td>
+
+                            <td>
+
+                                <!--
+                                Admin และ Teacher
+                                สามารถแก้ไขข้อมูล
+                                -->
+
+                                <?php if ($role == "admin" || $role == "teacher"): ?>
+
+                                    <a
+                                        href="edit.php?id=<?= $row["student_id"] ?>"
+                                        class="btn btn-warning btn-sm"
+                                    >
+                                        แก้ไข
+                                    </a>
+
+                                <?php endif; ?>
+
+
+                                <!--
+                                เฉพาะ Admin
+                                สามารถลบข้อมูล
+                                -->
+
+                                <?php if ($role == "admin"): ?>
+
+                                    <a
+                                        href="delete.php?id=<?= $row["student_id"] ?>"
+                                        class="btn btn-danger btn-sm"
+                                        onclick="return confirm('คุณต้องการลบข้อมูลนักเรียนคนนี้หรือไม่?');"
+                                    >
+                                        ลบ
+                                    </a>
+
+                                <?php endif; ?>
+
+
+                                <!--
+                                Viewer จะไม่มีปุ่มจัดการ
+                                -->
+
+                                <?php if ($role == "viewer"): ?>
+
+                                    <span class="text-muted">
+                                        ดูข้อมูล
+                                    </span>
+
+                                <?php endif; ?>
+
+                            </td>
+
+                        </tr>
+
+                    <?php endwhile; ?>
+
+                <?php else: ?>
+
+                    <tr>
+
+                        <td colspan="8"
+                            class="text-center">
+
+                            ไม่พบข้อมูลนักเรียน
+
+                        </td>
+
+                    </tr>
+
+                <?php endif; ?>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
 
 </div>
-
-
-<div class="user-info">
-
-    ยินดีต้อนรับ
-    <strong>
-        <?= htmlspecialchars($_SESSION["fullname"]) ?>
-    </strong>
-
-</div>
-
-
-<a href="create.php" class="btn btn-add">
-    + เพิ่มนักเรียน
-</a>
-
-
-<br><br>
-
-
-<table>
-
-    <thead>
-
-        <tr>
-
-            <th>รหัส</th>
-            <th>ชื่อ</th>
-            <th>นามสกุล</th>
-            <th>ชั้น</th>
-            <th>ห้อง</th>
-            <th>เบอร์โทร</th>
-            <th>จัดการ</th>
-
-        </tr>
-
-    </thead>
-
-
-    <tbody>
-
-    <?php if ($result && $result->num_rows > 0): ?>
-
-        <?php while ($row = $result->fetch_assoc()): ?>
-
-            <tr>
-
-                <td>
-                    <?= htmlspecialchars($row["student_code"]) ?>
-                </td>
-
-                <td>
-                    <?= htmlspecialchars($row["firstname"]) ?>
-                </td>
-
-                <td>
-                    <?= htmlspecialchars($row["lastname"]) ?>
-                </td>
-
-                <td>
-                    <?= htmlspecialchars($row["class_level"]) ?>
-                </td>
-
-                <td>
-                    <?= htmlspecialchars($row["classroom"]) ?>
-                </td>
-
-                <td>
-                    <?= htmlspecialchars($row["phone"]) ?>
-                </td>
-
-                <td>
-
-                    <a
-                        href="edit.php?id=<?= $row["student_id"] ?>"
-                        class="btn btn-edit"
-                    >
-                        แก้ไข
-                    </a>
-
-                    <a
-                        href="delete.php?id=<?= $row["student_id"] ?>"
-                        class="btn btn-delete"
-                        onclick="return confirm('คุณต้องการลบนักเรียนคนนี้หรือไม่?');"
-                    >
-                        ลบ
-                    </a>
-
-                </td>
-
-            </tr>
-
-        <?php endwhile; ?>
-
-    <?php else: ?>
-
-        <tr>
-
-            <td colspan="7" style="text-align:center;">
-                ไม่พบข้อมูลนักเรียน
-            </td>
-
-        </tr>
-
-    <?php endif; ?>
-
-    </tbody>
-
-</table>
-
 
 </body>
 
